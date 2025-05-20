@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encargado Semanal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="relative">
+  <div class="h-screen px-5 md:px-30 bg-indigo-500 flex flex-col items-center justify-center gap-5">
+    <h1 class="font-bold text-2xl md:text-4xl text-white">
+      Caro Viandas Cemenurnk
+      <span class="bg-sky-500 rounded-full p-2">🥙</span>
+    </h1>
+    <div class="bg-white p-3 rounded shadow-lg w-full">
+      <p class="italic mb-2">"Esta sencilla página web tiene como finalidad difundir y ayudar con la organización de los encargados semanales de recibir las viandas y bajar los tuppers de Caro Viandas para el Cemenurnk. Espero sea de tu agrado."</p>
+      <p class="italic text-right">Atte. Tec. Iván Vazquez</p>
+    </div>
+    <div class="bg-white p-3 rounded shadow-lg w-full">
+      <p class="text-lg mb-2" id="encargado"></p>
+      <h2 class="text-lg font-bold">Encargados del mes</h2>
+      <ul id="lista_encargados"></ul>
+    </div>
+  </div>
+  <footer class="absolute bottom-0 w-full bg-gray-800 py-6 flex flex-col items-center">
+    <span class="text-gray-300 text-sm">© 2025 IvanDEV. Todos los derechos reservados.</span>
+    <a 
+      href="https://www.linkedin.com/in/igvazquez/" 
+      target="_blank"
+      class="text-sky-500 cursor-pointer underline"
+    >LinkedIn</a>
+  </footer>
+  <script>
+
+    const getListaEncargados = (objFechaActual) => {
+
+      const personas = ['Lucia', 'Lourdes', 'Iván', 'Ana Laura', 'Gabriel', 'Vane', 'Heber', 'Alexis']
+
+      const objFechaInicio = new Date(2025, 4, 5) //5 de mayo del 2025
+
+      const fecha = objFechaInicio
+      const encargados = []
+
+      let indexEncargado = 0
+      let semanaCompleta = true
+
+      //para recorrer las fechas hasta finalizar el mes actual, completando hasta el siguiente viernes
+      while(fecha.getMonth() <= objFechaActual.getMonth() || !semanaCompleta){
+        //para considerar sólo las fechas del mes actual
+        //if(fecha.getMonth() === objFechaActual.getMonth()){
+          
+          //lunes
+          if(fecha.getDay() === 1){
+            //para agregar una nueva semana
+            encargados.push({
+              lunes: { //lunes tiene dia/mes/año para poder filtrar por año y mes actual
+                dia: fecha.getDate(), 
+                mes: fecha.getMonth(), 
+                anio: fecha.getFullYear()
+              },
+              encargado: personas[indexEncargado]
+            })
+
+            semanaCompleta = false
+          }
+
+          //viernes
+          if(fecha.getDay() === 5){
+            //para agregar el valor del día viernes a la última semana
+            encargados[encargados.length - 1]["viernes"] = { //viernes tiene año, mes y día en caso de que caiga el mes que viene 
+              dia: fecha.getDate(), 
+              mes: fecha.getMonth(), 
+              anio: fecha.getFullYear()
+            }
+            
+            //iteración de encargados
+            //para cuando llegue al último encargado, vuelva al primero
+            if(indexEncargado < personas.length - 1){
+              indexEncargado++
+            }else{
+              indexEncargado = 0
+            }
+
+            semanaCompleta = true
+          }
+        //}
+        fecha.setDate(fecha.getDate() + 1)
+        //Aclaración: Al llegar al último día del mes se setea al primero del mes siguiente
+      }
+
+      return encargados
+    }
+    
+
+    //Hacer renderizado aquí
+
+    const listaEncargados = document.getElementById("lista_encargados")
+
+    const meses = [
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre'
+    ]
+
+    const objFechaActual = new Date() //al no estar seteado le valor siempre se mantendrá actualizado
+
+    const encargadosMesActual = getListaEncargados(objFechaActual)
+    .filter(semana => (semana.lunes.mes === objFechaActual.getMonth() && semana.lunes.anio === objFechaActual.getFullYear())) //Para mostrar sólo el mes actual
+    
+    encargadosMesActual.forEach((semana, index) => {
+
+      listaEncargados.innerHTML += `
+        <li>
+          ${index+1}. <span class="font-bold">${semana.encargado}</span>:
+          ${semana.lunes.dia} de ${meses[semana.lunes.mes]} de ${semana.lunes.anio}
+           - 
+          ${semana.viernes.dia} de ${meses[semana.viernes.mes]} de ${semana.viernes.anio}</span>
+        </li>
+      `
+    })
+
+    // Encargado
+
+    let encargadoActual = encargadosMesActual.find(semana => (objFechaActual.getDate() >= semana.lunes.dia && objFechaActual.getDate() <= semana.viernes.dia))
+
+    document.getElementById("encargado").innerHTML = `Encargado/a de esta semana: <span id="encargado" class="italic font-bold">${encargadoActual.encargado}</span>`
+
+  </script>
+</body>
+</html>
+<!-- 
+Lucia: 5 de mayo de 2025 - 9 de mayo de 2025
+2. Lourdes: 12 de mayo de 2025 - 16 de mayo de 2025
+3. Iván: 19 de mayo de 2025 - 23 de mayo de 2025
+4. Ana Laura: 26 de mayo de 2025 - 30 de mayo de 2025
+5. Anahir: 2 de junio de 2025 - 6 de junio de 2025
+6. Gabriel: 9 de junio de 2025 - 13 de junio de 2025
+7. Vane: 16 de junio de 2025 - 20 de junio de 2025
+8. Heber: 23 de junio de 2025 - 27 de junio de 2025
+9. Alexis: 30 de junio de 2025 - 4 de julio de 2025
+
+-->
